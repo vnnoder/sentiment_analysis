@@ -1,4 +1,5 @@
 import java.io.File;
+import java.util.ArrayList;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.bayes.NaiveBayes;
@@ -29,29 +30,13 @@ public class SentimentCategorization {
 	    stringtowordvector.setUseStoplist(true);	    
 	    model.setFilter(stringtowordvector);
 	    model.setClassifier(new NaiveBayes());
-	    model.buildClassifier(training);
+	    model.buildClassifier(training);	    	   
 
+	    ArrayList<Instance>[][] results = new ArrayList[2][2];
+	    for (int i = 0; i < results.length; i++)
+	    	for (int j = 0; j < results[0].length; j++)
+	    		results[i][j] = new ArrayList<Instance>();
 	    
-	    //StringToWordVector filter = new StringToWordVector();	    
-	    //filter.setUseStoplist(true);
-	    //filter.setOnlyAlphabeticTokens(true);
-	    
-	    //filter.setInputFormat(training);
-	    //Instances filteredTraining = Filter.useFilter(training, filter);
-	    //filteredTraining.setClassIndex(filteredTraining.numAttributes() - 1);
-	    //System.out.println("\n\nFiltered data:\n\n" + filteredTraining);	    
-	    
-	    //filter.setInputFormat(test);
-	    //Instances filteredTest = Filter.useFilter(test, filter);
-	    //filteredTest.setClassIndex(filteredTest.numAttributes() - 1);
-	    
-	    //Classifier classifier = (Classifier)new NaiveBayes();
-	    //classifier.buildClassifier(filteredTraining);
-	    
-	    //System.out.println("\n\nClassifier model:\n\n" + classifier);
-
-	    int[][] results = new int[2][2];
-	    results[0][0] = results[0][1] = results[1][0] = results[1][1] = 0;
 	    System.out.println("Testing result");
 	    for (int i = 1; i < test.numInstances(); i++)
 	    {
@@ -64,16 +49,32 @@ public class SentimentCategorization {
 	    		double cls = model.classifyInstance(instance);
 	    		instance.setClassValue(cls);
 	    		System.out.println("Original: " + originalClassValue + "\tClass value: " + cls);	    		
-	    		results[(int)Math.round(originalClassValue)][(int)Math.round(cls)] += 1;
+	    		results[(int)Math.round(originalClassValue)][(int)Math.round(cls)].add(instance);
 	    	}catch(Exception e){
 	    		throw e;
 	    	}
 	    }
 	    
-	    //System.out.println(test);
+	    
+	    System.out.println("==============================Classified result========================");
+	    int correct = results[0][0].size() + results[1][1].size();
+	    int total =  results[0][0].size() + results[1][1].size() + results[0][1].size() + results[1][0].size();	    
+	    System.out.println("Accuracy: " + (float)(100 * correct)/total + "%");
 	    System.out.println("Original:\t0 \t1");
-	    System.out.println("Classified 0:\t" + results[0][0] + "\t" + results[0][1]);
-	    System.out.println("Classified 1:\t" + results[1][0] + "\t" + results[1][1]);
+	    System.out.println("Classified 0:\t" + results[0][0].size() + "\t" + results[0][1].size());
+	    System.out.println("Classified 1:\t" + results[1][0].size() + "\t" + results[1][1].size());
+	    System.out.println("=======================================================================");
+	    System.out.println("==============================Examples========================");
+	    System.out.println("Original = Negative, Classified = Negative");
+	    System.out.println(results[0][0].get(0));
+	    System.out.println("Original = Negative, Classified = Positive");
+	    System.out.println(results[0][1].get(0));
+	    System.out.println("Original = Positive, Classified = Negative");
+	    System.out.println(results[1][0].get(0));
+	    System.out.println("Original = Positive, Classified = Positive");
+	    System.out.println(results[1][1].get(0));
+	    System.out.println("=======================================================================");
+	    
 	    
 	    
 	}
